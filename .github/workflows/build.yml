@@ -14,19 +14,21 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends g++-mingw-w64-x86-64
 
       - name: Build d3d12.dll proxy
-        working-directory: source/d3d12async
-        run: bash build.sh
+        run: |
+          mkdir -p work
+          cp -r source/d3d12async work/d3d12async
+          cp -r source work/source
+          cd work/d3d12async && bash build.sh
 
       - name: Build USPF.exe (embeds the proxy)
-        working-directory: source
-        run: bash build.sh
+        run: cd work/source && bash build.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: USPF-build
           path: |
-            source/build/USPF.exe
-            source/d3d12async/build/d3d12.dll
-            source/d3d12async/d3d12async.ini
+            work/source/build/USPF.exe
+            work/d3d12async/build/d3d12.dll
+            work/source/payload/d3d12async.ini
           if-no-files-found: error
