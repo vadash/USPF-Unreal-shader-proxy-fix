@@ -15,11 +15,11 @@ jobs:
 
       - name: Build d3d12.dll proxy
         working-directory: source/d3d12async
-        run: ./build.sh
+        run: bash build.sh
 
       - name: Build USPF.exe (embeds the proxy)
         working-directory: source
-        run: ./build.sh
+        run: bash build.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
