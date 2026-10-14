@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -32,3 +34,16 @@ jobs:
             work/d3d12async/build/d3d12.dll
             work/source/payload/d3d12async.ini
           if-no-files-found: error
+
+      - name: Publish to rolling "ci-build" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd work
+          gh release delete ci-build --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null || true
+          gh release create ci-build --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "USPF — rebuilt from source (GitHub Actions)" \
+            --notes "Automated MinGW-w64 rebuild of commit $GITHUB_SHA from $GITHUB_REPOSITORY.
+          Built with the project's own build.sh on ubuntu-latest. Binaries are unsigned.
+          USPF.exe embeds d3d12.dll, d3d12async.ini and the WebView2 loader; the loose files are for manual installs next to a game exe." \
+            source/build/USPF.exe d3d12async/build/d3d12.dll source/payload/d3d12async.ini
